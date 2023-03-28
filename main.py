@@ -23,7 +23,7 @@ connection= pymysql.connect(
     host="10.100.33.60",
     user="mkhan",
     password='221085624',
-    database='mkhan_2ndTable',
+    database='mkhan_meep_social',
     cursorclass=pymysql.cursors.DictCursor,
     autocommit=True
 
@@ -37,6 +37,10 @@ def index():
 @app.route("/feed")
 def post_feed():
     cursor= connection.cursor()
-    cursor.execute("SELECT * FROM `posts ORDER BY `timestamp`")
+    cursor.execute("SELECT * FROM `post` JOIN `users` ON `post` . `user_id` = `users`.`id` ORDER BY `timestamp` DESC;")
     results= cursor.fetchall()
     return render_template("feed.html.jinja", posts=results)
+
+
+if __name__=='__main__':
+    app.run(debug=True)
