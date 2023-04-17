@@ -1,17 +1,17 @@
 from flask import Flask, render_template,request, redirect
 import pymysql.cursors
 import pymysql
-from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager
+from flask_login import LoginManager,login_required,login_user,current_user,logout_user
 
-login_manager= LoginManager
+
+login_manager= LoginManager()
 
 
 app= Flask(__name__)
-auth = HTTPBasicAuth()
-
 login_manager.init_app(app)
+
+app.config['SECRET_KEY']='kjsbkjfgabfjknbrgojajovnajov'
 
 class User:
     def __init__(self,id,user,banned):
@@ -24,16 +24,6 @@ class User:
     
     def get_id(self):
         return str(self.id)
-
-users = {
-    "mkhan": generate_password_hash("1234"),
-    "susan": generate_password_hash("susan")
-}
-@auth.verify_password
-def verify_password(username, password):
-    if username in users and \
-            check_password_hash(users.get(username), password):
-        return username
 
 
 connection= pymysql.connect(
@@ -58,22 +48,45 @@ def user_loader(user_id):
     if result is None:
         return None
     
-    return User(result['id'],result['user'],result['banned'],)
+    return User(result['id'],result['user'],result['ban'],)
 
 @app.route("/")
 def index(): 
     return render_template("meeptem.html.jinja")
 
 
-@app.route("/feed")
+@app.route("/feed", )
+@login_required
 def post_feed():
     cursor= connection.cursor()
     cursor.execute("SELECT * FROM `post` JOIN `users` ON `post` . `user_id` = `users`.`id` ORDER BY `timestamp` DESC;")
     results= cursor.fetchall()
     return render_template("feed.html.jinja", posts=results)
 
-@app.route('/sign-in')
-def sign_in(): 
+@app.route('/sign-in',methods=['POST','GET'])
+def sign_in():
+    if request.method == 'POST':
+        cursor= connection.cursor()
+        cursor.execute('SELECT * FROM `users` WHERE `user`= %s ',(request.form['username']))
+        result= cursor.fetchone()
+
+        if result is None:
+            return redirect("/sign-in")
+        
+        if result['password']==(request.form['password']):
+            user= User(result['id'],result['user'],result['ban'])
+
+            login_user(user)
+
+            return redirect('/feed')
+        else:
+            return render_template("sign_in.html.jinja")
+        
+    elif request.method=='GET':
+        return render_template("sign_in.html.jinja")
+
+        
+
     return render_template("sign_in.html.jinja")
 
 @app.route('/sign-up',methods=['POST','GET'])
@@ -98,8 +111,20 @@ def sign_up():
         return redirect("/feed")
     
     elif request.method == 'GET':
-        return render_template("sign_up.html.jinja")    
+        return render_template("sign_up.html.jinja")  
+
+
+
+
+@app.route('/profile/<username>')
+def user_profile(username):
+    cursor=connection.cursor()
+    cursor.execute("SELECT * FROM `users` WHERE `username`= %s",(username))
+
+    return render_template("user_profile.html.jinja", user=result)
+
 
 
 if __name__=='__main__':
     app.run(debug=True)
+
