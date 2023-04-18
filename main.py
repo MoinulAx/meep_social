@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request, redirect
+from flask import Flask, render_template,request, redirect,abort
 import pymysql.cursors
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -67,13 +67,14 @@ def post_feed():
 def sign_in():
     if request.method == 'POST':
         cursor= connection.cursor()
-        cursor.execute('SELECT * FROM `users` WHERE `user`= %s ',(request.form['username']))
+        cursor.execute('SELECT * FROM `users` WHERE `user` = %s',(request.form['username']))
         result= cursor.fetchone()
+
 
         if result is None:
             return redirect("/sign-in")
         
-        if result['password']==(request.form['password']):
+        if result['password'] == request.form['password']:
             user= User(result['id'],result['user'],result['ban'])
 
             login_user(user)
@@ -114,14 +115,29 @@ def sign_up():
         return render_template("sign_up.html.jinja")  
 
 
-
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html.jinja'), 404
 
 @app.route('/profile/<username>')
 def user_profile(username):
     cursor=connection.cursor()
-    cursor.execute("SELECT * FROM `users` WHERE `username`= %s",(username))
+    cursor.execute("SELECT * FROM `users` WHERE `user`= %s",(username))
 
-    return render_template("user_profile.html.jinja", user=result)
+    result = cursor.fetchone()
+    if result is None:
+        abort(404)
+
+
+    cursor.close()
+
+    cursor=connection.cursor()
+
+    cursor.execute("SELECT * from `post` WHERE `user_id`= %s",(result['id']))
+
+    post_result= cursor.fetchall()
+
+    return render_template("user_profile.html.jinja", user=result,posts=post_result)
 
 
 

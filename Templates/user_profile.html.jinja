@@ -17,7 +17,23 @@
             <h1>{{user.display_name}}</h1>
             <p> {{user.bio}}</p>
            <div>
-           
+            {%for post in posts%}
+            <div class="post">
+            
+                <div class="card mx-auto" style="width: 28rem;" >
+                    <img src="{{post['post_image']}}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">{{post["user"]}} (@{{post["display_name"]}})</h5>
+                        <p>{{post['timestamp'].strftime("%b %d,%Y (%I:%M %p)")}}</p>
+                        <p class="card-text">{{post['caption']}}</p>
+                        <a href="#" class="btn btn-primary"></a>
+                    </div>
+                </div>
+               
+            
+            </div>
+            <div class="b-example-divider"></div>
+            {%endfor%}
            
            
            </div>
