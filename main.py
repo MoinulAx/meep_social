@@ -163,7 +163,7 @@ def create_post():
 
     cursor.execute(
         "INSERT INTO `post` (`caption`, `post_image`, `user_id`) VALUES (%s, %s, %s)", 
-        (request.form['post_text'], file_name, user_id)
+        (request.form['caption'], file_name, user_id)
     )
 
     return redirect('/feed')
