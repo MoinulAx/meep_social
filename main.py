@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request, redirect,abort
+from flask import Flask, render_template,request, redirect,abort, send_from_directory
 import pymysql.cursors
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -49,6 +49,10 @@ def user_loader(user_id):
         return None
     
     return User(result['id'],result['user'],result['ban'],)
+
+@app.get('/media/<path:path>')
+def send_media(path):
+    return send_from_directory('media', path)
 
 @app.route("/")
 def index(): 
@@ -138,6 +142,31 @@ def user_profile(username):
     post_result= cursor.fetchall()
 
     return render_template("user_profile.html.jinja", user=result,posts=post_result)
+
+@app.route('/post', methods=['POST'])
+@login_required
+def create_post():
+    cursor = connection.cursor()
+
+    photo = request.files['post_image']
+
+    file_name = photo.filename # my_photo.jpg
+
+    file_extension = file_name.split('.')[-1]
+
+    if file_extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+        photo.save('media/posts/' + file_name)
+    else:
+        raise Exception('Invalid file type')
+
+    user_id = current_user.id
+
+    cursor.execute(
+        "INSERT INTO `post` (`caption`, `post_image`, `user_id`) VALUES (%s, %s, %s)", 
+        (request.form['post_text'], file_name, user_id)
+    )
+
+    return redirect('/feed')
 
 
 

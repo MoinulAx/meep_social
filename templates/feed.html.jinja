@@ -37,13 +37,32 @@
                     </div>
                 </div>
         </nav>
+    
+        
+            <div class="mx-auto p-2 border-dark rounded" style="width: 700px;">
+
+                <h2>Share a Post</h2>
+                <form action="/post" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input type="text" name="caption" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="What you thinking?">
+                    <br>
+                        <label for="exampleInputPassword1" class="form-label">Profile image</label>
+                        <input type="file" name="post_image" class="form-control" id="exampleInputPassword1">
+                    <br>
+                        <button type="submit" class="w-100 btn btn-lg btn-primary" style="width: 150px;">Post</button>
+                </form>
+                </div>
+        
+        
+        
+        
         
        
             {%for post in posts%}
             <div class="post">
             
                 <div class="card mx-auto" style="width: 28rem;" >
-                    <img src="{{post['post_image']}}" class="card-img-top" alt="...">
+                    <img src="/media/posts/{{post['post_image']}}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title">{{post["user"]}} (@{{post["display_name"]}})</h5>
                         <p>{{post['timestamp'].strftime("%b %d,%Y (%I:%M %p)")}}</p>
