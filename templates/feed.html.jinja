@@ -15,6 +15,7 @@
         <main >
 
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        
             <div class="container-fluid">
                     <a class="navbar-brand" href="/">MeepSocial</a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,9 +65,9 @@
                 <div class="card mx-auto" style="width: 28rem;" >
                     <img src="/media/posts/{{post['post_image']}}" class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title">{{post["user"]}} (@{{post["display_name"]}})</h5>
+                        <h5 class="card-title">{{post["user"]| escape}} (@{{post["display_name"]}})</h5>
                         <p>{{post['timestamp'].strftime("%b %d,%Y (%I:%M %p)")}}</p>
-                        <p class="card-text">{{post['caption']}}</p>
+                        <p class="card-text">{{post['caption']| escape}}</p>
                         <a href="#" class="btn btn-primary"></a>
                     </div>
                 </div>

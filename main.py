@@ -41,7 +41,7 @@ connection= pymysql.connect(
 def user_loader(user_id):
     cursor= connection.cursor()
 
-    cursor.execute("SELECT * from `users` WHERE `id` = "+user_id)
+    cursor.execute("SELECT * from `users` WHERE `id` = %s", (user_id))
 
     result = cursor.fetchone()
 
